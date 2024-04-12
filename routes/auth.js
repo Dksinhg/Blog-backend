@@ -3,6 +3,7 @@
 const router = require("express").Router();
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
+const jwt = require('jsonwebtoken');
 
 // middleware
 const bodyparser = require("body-parser");
@@ -39,24 +40,45 @@ router.post("/register", async (req, resp) => {
 // Login
 
 router.post("/login", async (req, resp) => {
-    try {
-     const user = await User.findOne({name: req.body.name})
 
-    //  if no user  
-     !user && resp.status(400).json("not user !")
+  try {
+       req.user = null;
      
-    //  if same user then compare password
-     const validatPassword = await bcrypt.compare(req.body.password, user.password)
-    
-    //  if not validate 
-     !validatPassword && resp.status(400).json("wrong password !")
+      const token = req.headers=['token']
+      if (token) {
+        const  verifyUser = jwt.verify(token, process.env.DK);
+        if(verifyUser){
+          const user = await User.findOne({_id: verifyUser.id})
+          if (user) {
+            req.user = user;
+            req.token = token;
+          }
+        }
+      }
+    } catch (error){
+      req.user = null;
+      console.log(error)
+    }
    
-     const {password, ...other} = user._doc
-     resp.status(200).json(other)
+  //   try {
+  //   //  const user = await User.findOne({name: req.body.name})
+  //    const user = await User.findOne({name: req.body.name})
 
-   } catch (error) {
-    console.log("error")
-   }
+  //   //  if no user  
+  //    !user && resp.status(400).json("not user !")
+     
+  //   //  if same user then compare password
+  //    const validatPassword = await bcrypt.compare(req.body.password, user.password)
+    
+  //   //  if not validate 
+  //    !validatPassword && resp.status(400).json("wrong password !")
+   
+  //    const {password, ...other} = user._doc
+  //    resp.status(200).json(other)
+
+  //  } catch (error) {
+  //   console.log("error")
+  //  }
 });
 
 module.exports = router;
