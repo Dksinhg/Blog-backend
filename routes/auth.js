@@ -41,44 +41,47 @@ router.post("/register", async (req, resp) => {
 
 router.post("/login", async (req, resp) => {
 
-  try {
-       req.user = null;
+  // try {
+  //      req.user = null;
      
-      const token = req.headers=['token']
-      if (token) {
-        const  verifyUser = jwt.verify(token, process.env.DK);
-        if(verifyUser){
-          const user = await User.findOne({_id: verifyUser.id})
-          if (user) {
-            req.user = user;
-            req.token = token;
-          }
-        }
-      }
-    } catch (error){
-      req.user = null;
-      console.log(error)
-    }
+  //     const token = req.headers=['token']
+  //     if (token) {
+  //       const  verifyUser = jwt.verify(token, process.env.DK);
+  //       if(verifyUser){
+  //         const user = await User.findOne({_id: verifyUser.id})
+  //         if (user) {
+  //           req.user = user;
+  //           req.token = token;
+  //         }
+  //       }
+  //     }
+  //   } catch (error){
+  //     req.user = null;
+  //     console.log(error)
+  //   }
    
-  //   try {
-  //   //  const user = await User.findOne({name: req.body.name})
-  //    const user = await User.findOne({name: req.body.name})
+    try {
+    //  const user = await User.findOne({name: req.body.name})
+     const user = await User.findOne({name: req.body.name})
 
-  //   //  if no user  
-  //    !user && resp.status(400).json("not user !")
+    //  if no user  
+     !user && resp.status(400).json("not user !")
      
-  //   //  if same user then compare password
-  //    const validatPassword = await bcrypt.compare(req.body.password, user.password)
+    //  if same user then compare password
+     const validatPassword = await bcrypt.compare(req.body.password, user.password)
     
-  //   //  if not validate 
-  //    !validatPassword && resp.status(400).json("wrong password !")
+    //  if not validate 
+     !validatPassword && resp.status(400).json("wrong password !")
    
-  //    const {password, ...other} = user._doc
-  //    resp.status(200).json(other)
+     const {password, ...other} = user._doc
+     resp.status(200).json(other)
 
-  //  } catch (error) {
-  //   console.log("error")
-  //  }
+     let token = jwt.sign({_id: User._id  }, process.env.DK)
+     return { status: true, message:"Login success", token, username:User}
+   } catch (error) {
+    console.log("error")
+    return {status:false, data: null, message: "Fail to login"}
+   }
 });
 
 module.exports = router;
