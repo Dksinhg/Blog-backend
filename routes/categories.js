@@ -17,7 +17,7 @@ router.post("/postCate", async(req, resp)=>{
 router.get("/getCate", async(req, resp)=>{
     try {
         const allCategory = await Category.find();
-        console.log(allCategory)
+        // console.log(allCategory)
         resp.status(200).json(allCategory);
     } catch (error) {
         resp.status(501).json("error")
